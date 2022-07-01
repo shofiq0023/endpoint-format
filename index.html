@@ -4,7 +4,18 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Change endpoint</title>
+	<style>
+		body {
+			font-family: Calibri;
+			font-size: 22px;
+		}
+		#pop {
+			display: none;
+			color: rgb(40, 185, 40);
+			font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+		}
+	</style>
+	<title>Endpoint format</title>
 </head>
 <body>
 	<form id="form">
@@ -18,12 +29,20 @@
 			<option value="LOG">LOG</option>
 			<option value="FILE">FILE</option>
 		</select>
+		<select id="method">
+			<option value="POST" selected>POST</option>
+			<option value="GET">GET</option>
+			<option value="PUT">PUT</option>
+			<option value="DELETE">DELETE</option>
+		</select>
 		<input type="submit" value="submit">
 	</form>
 
 	<div>
 		<p>Endpoint: <b><span id="output-endpoint"></span></b></p>
-		<p>Desc: <b><span id="output-desc"></span></b></p>
+		<p>Full: <b><span id="output-desc"></span></b></p>
+		<button id="click-to-copy" onclick="copyText(output-desc)">Copy</button>
+		<p id="pop">Text Copied</p>
 	</div>
 
 	<script>
@@ -31,30 +50,54 @@
 		var endpoint = document.getElementById("output-endpoint");
 		var desc = document.getElementById("output-desc");
 		var form = document.getElementById("form");
+		var pop = document.getElementById("pop");
 		var app = document.getElementById("app");
+		var method = document.getElementById("method");
+		var copyBtn = document.getElementById("click-to-copy")
 
-		var databaseName = {
-			"KYC": "KYC Database",
-			"CITY": "CTrends Smart City",
-			"WFC": "Ctrends Workforce",
-			"GIS": "Web GIS",
-			"LOG": "Log Server",
-			"FILE": "FILE Database"
-		}
-
-		const findValue = (object, value) => {
-			return Object.keys(object).find(key => object[key] === value);
-		}
+		const databaseMap = new Map();
+		databaseMap.set("KYC", "KYC Database");
+		databaseMap.set("CITY", "CTrends Smart Ciy");
+		databaseMap.set("WFC", "Ctrends Workforce");
+		databaseMap.set("GIS", "Web GIS");
+		databaseMap.set("LOG", "Log Server");
+		databaseMap.set("FILE", "FILE Database");
 
 		const output = (e) => {
 			e.preventDefault();
 
+			// local variable to store input data
+			let selectedApp = app.value;
+			let db = databaseMap.get(selectedApp);
+			let selectedEndpoint = input.value;
+			let selectedMethod = method.value;
+			
+			// create description
 			let str = input.value;
-
-			console.log(findValue(app, "KYC"));
-
 			endpoint.innerText = input.value;
-			desc.innerText = str.replaceAll("_", " ");
+			let description = str.replaceAll("_", " ");
+
+			// formating the html output
+			let outputHtml = `('${selectedApp}','${db}','${selectedEndpoint}','${description}','','${selectedMethod}'),`
+			
+			desc.innerText = outputHtml;
+		}
+
+		const copyText = () => {
+			console.log(desc);
+			let range = document.createRange();
+			range.selectNode(desc); // select text from div
+
+			window.getSelection().removeAllRanges(); // remove current selection
+			window.getSelection().addRange(range); // add selection
+
+			document.execCommand("copy"); // copy command
+			window.getSelection().removeAllRanges(); // removes current selection
+
+			pop.style.display = "block";
+			setTimeout(() => {
+				pop.style.display = "none";
+			}, 1200);
 		}
 
 		form.addEventListener("submit", output);
