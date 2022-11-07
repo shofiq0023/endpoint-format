@@ -8,6 +8,8 @@
 		body {
 			font-family: Calibri;
 			font-size: 22px;
+            padding: 0;
+            margin: 0;
 		}
 		#pop {
 			display: none;
@@ -16,35 +18,51 @@
 		}
 	</style>
 	<title>Endpoint format</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css">
 </head>
 <body>
-	<form id="form">
-		<input type="text" id="input" placeholder="endpoint name.." required>
-		<select id="app" required>
-			<option value="" hidden>Select APP</option>
-			<option value="KYC">KYC</option>
-			<option value="CITY">SHOUT</option>
-			<option value="WFC">WORK-FORCE</option>
-			<option value="SURVEY">SURVEY</option>
-			<option value="GIS">GIS</option>
-			<option value="LOG">LOG</option>
-			<option value="FILE">FILE</option>
-		</select>
-		<select id="method">
-			<option value="POST" selected>POST</option>
-			<option value="GET">GET</option>
-			<option value="PUT">PUT</option>
-			<option value="DELETE">DELETE</option>
-		</select>
-		<input type="submit" value="submit">
-	</form>
+	<div class="container">
+        <h1 class="pb-2">Formate Endpoint</h1>
 
-	<div>
-		<p>Endpoint: <b><span id="output-endpoint"></span></b></p>
-		<p>Full: <b><span id="output-desc"></span></b></p>
-		<button id="click-to-copy" onclick="copyText(output-desc)">Copy</button>
-		<p id="pop">Text Copied</p>
-	</div>
+        <form class="form" id="form">
+            <div class="form-group mb-3">
+                <label for="input" class="form-label">Endpoint name:</label>
+                <input class="form-control" type="text" id="input" placeholder="endpoint name.." required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="app" class="form-label">For which app:</label>
+                <select class="form-select" id="app" required>
+                    <option value="" hidden>Select APP</option>
+                    <option value="KYC">KYC</option>
+                    <option value="CITY">SHOUT</option>
+                    <option value="WFC">WORK-FORCE</option>
+                    <option value="SURVEY">SURVEY</option>
+                    <option value="GIS">GIS</option>
+                    <option value="LOG">LOG</option>
+                    <option value="FILE">FILE</option>
+                </select>
+            </div>
+            
+            <div class="form-group mb-4">
+                <label for="method" class="form-label">Request type:</label>
+                <select class="form-select" id="method">
+                    <option value="POST" selected>POST</option>
+                    <option value="GET">GET</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+            </div>
+            
+            <input class="btn btn-info" type="submit" value="Submit">
+        </form>
+    
+        <div class="mt-5">
+            <p>Endpoint: <b><span id="output-endpoint"></span></b></p>
+            <p>Full: <b><span id="output-desc"></span></b></p>
+            <button class="btn btn-success" id="click-to-copy" onclick="copyText(output-desc)">Copy</button>
+            <p id="pop">Text Copied</p>
+        </div>
+    </div>
 
 	<script>
 		var input = document.getElementById("input")
@@ -65,6 +83,14 @@
 		databaseMap.set("LOG", "Log Server");
 		databaseMap.set("FILE", "FILE Database");
 
+        const setDesc = (endpoint) => {
+            let version = endpoint.substring(1, 2);
+            let detail = endpoint.substring(3, endpoint.length)
+            let dc = `Version ${version} of ${detail}`;
+
+            return dc;
+        }
+
 		const output = (e) => {
 			e.preventDefault();
 
@@ -74,10 +100,17 @@
 			let selectedEndpoint = input.value;
 			let selectedMethod = method.value;
 			
+            // replace the '/' in front of the endpoint
+            if (selectedEndpoint.substring(0,1) == '/') {
+                selectedEndpoint = selectedEndpoint.substring(1, selectedEndpoint.length);
+            } 
+
 			// create description
 			let str = input.value;
 			endpoint.innerText = input.value;
 			let description = str.replaceAll("_", " ");
+            
+            description = setDesc(selectedEndpoint);
 
 			// formating the html output
 			let outputHtml = `('${selectedApp}','${db}','${selectedEndpoint}','${description}','','${selectedMethod}'),`
